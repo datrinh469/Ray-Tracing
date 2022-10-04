@@ -14,6 +14,14 @@ int b(color c)
   return c & 0xFF;
 }
 
+//Formula needed for planes/triangle in primitives
+float tHits(PVector direction, PVector point, PVector origin, PVector normal)
+{
+  float topEquation = PVector.dot((PVector.sub(point, origin)), normal);
+  float bottomEquation = PVector.dot(direction, normal);
+  float tValue = topEquation / bottomEquation;
+  return tValue;
+}
 
 // restrict an integer value within a given range
 int clamp(int x, int low, int high)
