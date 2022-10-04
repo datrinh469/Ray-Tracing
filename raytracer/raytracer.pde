@@ -151,6 +151,7 @@ class RayTracer
       
       ArrayList<RayHit> hits = scene.root.intersect(ray);
       if (hits.size() > 0) {
+        //return multColor(color(255,0,0), -hits.get(0).normal.x);
         return scene.lighting.getColor(hits.get(0), scene, ray.origin);
       }
       return scene.background;

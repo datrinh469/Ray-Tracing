@@ -9,15 +9,41 @@ class Sphere implements SceneObject
        this.center = center;
        this.radius = radius;
        this.material = material;
-       
-       // remove this line when you implement spheres
-       throw new NotImplementedException("Spheres not implemented yet");
     }
     
     ArrayList<RayHit> intersect(Ray r)
     {
         ArrayList<RayHit> result = new ArrayList<RayHit>();
-        // TODO: Step 2: implement ray-sphere intersections
+        
+        float distanceRayToOrigin = PVector.dot(PVector.sub(center, r.origin), r.direction);
+        PVector closestPointToRadius = PVector.add(r.origin, PVector.mult(r.direction, distanceRayToOrigin));
+        float differenceOfClosestVectorPointToCenter = closestPointToRadius.dist(center);
+        
+        float deltaT = (float)Math.sqrt(sq(radius) - sq(differenceOfClosestVectorPointToCenter));
+        float entrance = distanceRayToOrigin - deltaT;
+          
+        if(differenceOfClosestVectorPointToCenter < radius && entrance >= 0) {
+          RayHit entry = new RayHit();
+          entry.t = entrance;
+          entry.location = PVector.add(r.origin, PVector.mult(r.direction, entry.t));
+          entry.normal = PVector.sub(entry.location, center).normalize();
+          entry.material = material;
+          entry.entry = true;
+          entry.u = 0;
+          entry.v = 0;
+          
+          RayHit exit = new RayHit();
+          exit.t = distanceRayToOrigin + deltaT;
+          exit.location = PVector.add(r.origin, PVector.mult(r.direction, exit.t));
+          exit.normal = PVector.sub(exit.location, center).normalize();
+          exit.material = material;
+          exit.entry = false;
+          exit.u = 0;
+          exit.v = 0;
+          
+          result.add(entry);
+          result.add(exit);
+        }
         return result;
     }
 }
