@@ -63,14 +63,33 @@ class Plane implements SceneObject
        this.normal = normal.normalize();
        this.material = material;
        this.scale = scale;
-       
-       // remove this line when you implement planes
-       throw new NotImplementedException("Planes not implemented yet");
+      
     }
     
     ArrayList<RayHit> intersect(Ray r)
     {
         ArrayList<RayHit> result = new ArrayList<RayHit>();
+        
+        float tPlane = tHits(r.direction, center, r.origin, this.normal);
+        PVector tPoint = PVector.add(PVector.mult(r.direction, tPlane), r.origin);
+        RayHit pHit = new RayHit();
+        
+        if (tPlane > 0)
+        {
+          pHit.t  = tPlane;
+          pHit.location = tPoint;
+          pHit.normal = this.normal;
+          if (PVector.dot(r.direction, this.normal) < 0)
+          {
+            pHit.entry = true;
+          }
+          else
+          {
+            pHit.entry = false;
+          }
+          pHit.material = this.material;
+          result.add(pHit);
+        }
         return result;
     }
 }
@@ -86,6 +105,27 @@ class Triangle implements SceneObject
     PVector tex3;
     Material material;
     
+    ArrayList<Float> ComputeUV(PVector a, PVector b, PVector c, PVector p)
+    {
+      ArrayList<Float> result = new ArrayList<Float>();
+      PVector e = PVector.sub(b, a);
+      PVector g = PVector.sub(c, a);
+      PVector d = PVector.sub(p, a);
+      float denom = (PVector.dot(e, e) * PVector.dot(g, g)) - (PVector.dot(e, g) * PVector.dot(g, e));
+      float u = ((PVector.dot(g, g) * PVector.dot(d, e)) - (PVector.dot(e, g) * PVector.dot(d, g)))/denom;
+      float v = ((PVector.dot(e, e)*PVector.dot(d, g)) - (PVector.dot(e, g) * PVector.dot(d, e)))/denom;
+      result.add(u);
+      result.add(v);
+      return result;
+    }
+    Boolean PointInTriangle(PVector a, PVector b, PVector c, PVector p)
+    {
+      ArrayList<Float> uv = ComputeUV(a, b, c, p);
+      float u = uv.get(0);
+      float v = uv.get(1);
+      return (u >= 0) & (v >= 0) & (u + v) <= 1;
+    }
+     
     Triangle(PVector v1, PVector v2, PVector v3, PVector tex1, PVector tex2, PVector tex3, Material material)
     {
        this.v1 = v1;
@@ -97,13 +137,34 @@ class Triangle implements SceneObject
        this.normal = PVector.sub(v2, v1).cross(PVector.sub(v3, v1)).normalize();
        this.material = material;
        
-       // remove this line when you implement triangles
-       throw new NotImplementedException("Triangles not implemented yet");
     }
-    
+ 
     ArrayList<RayHit> intersect(Ray r)
     {
         ArrayList<RayHit> result = new ArrayList<RayHit>();
+        float tTriangle = tHits(r.direction, v1, r.origin, this.normal);
+        PVector point = PVector.add(PVector.mult(r.direction, tTriangle), r.origin);
+        ArrayList<Float> uv = ComputeUV(v1, v2, v3, point);
+        if (PointInTriangle(v1, v2, v3, point) & tTriangle > 0)
+        {
+          RayHit TRI = new RayHit();
+          TRI.t = tTriangle;
+          TRI.location = point;
+          TRI.normal = this.normal;
+          if (PVector.dot(r.direction, this.normal) < 0)
+          {
+            TRI.entry = true;
+          }
+          else
+          {
+            TRI.entry = false;
+          }
+          TRI.u = uv.get(0);
+          TRI.v = uv.get(1);
+          TRI.material = this.material;
+          result.add(TRI);
+        }
+          
         return result;
     }
 }
