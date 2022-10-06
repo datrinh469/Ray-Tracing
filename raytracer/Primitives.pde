@@ -182,9 +182,6 @@ class Cylinder implements SceneObject
        this.height = -1;
        this.material = mat;
        this.scale = scale;
-       
-       // remove this line when you implement cylinders
-       throw new NotImplementedException("Cylinders not implemented yet");
     }
     
     Cylinder(float radius, float height, Material mat, float scale)
@@ -198,6 +195,91 @@ class Cylinder implements SceneObject
     ArrayList<RayHit> intersect(Ray r)
     {
         ArrayList<RayHit> result = new ArrayList<RayHit>();
+        RayHit entryHit = new RayHit();
+        RayHit exitHit = new RayHit();
+        
+        float a = sq(r.direction.x) + sq(r.direction.y);
+        float b = (2*r.origin.x*r.direction.x) + (2*r.origin.y*r.direction.y);
+        float c = sq(r.origin.x) + sq(r.origin.y) - sq(radius);
+          
+        float tEntry = (-b - sqrt(sq(b) - (4*a*c)))/(2*a);
+        float tExit = (-b + sqrt(sq(b) - (4*a*c)))/(2*a);
+        
+        if(height == -1) {
+          if(tEntry > 0 && tExit > 0) {
+            
+            entryHit.t = tEntry;
+            entryHit.location = new PVector(r.origin.x + (tEntry*r.direction.x), 
+              r.origin.y + (tEntry*r.direction.y), r.origin.z);
+            entryHit.normal = new PVector(entryHit.location.x, entryHit.location.y, 0).normalize();
+            entryHit.entry = true;
+            entryHit.material = material;
+            entryHit.u = 0;
+            entryHit.v = 0;
+            
+            exitHit.t = tExit;
+            exitHit.location = new PVector(r.origin.x + (tExit*r.direction.x),
+              r.origin.y + (tExit*r.direction.y), r.origin.z);
+            exitHit.normal = new PVector(exitHit.location.x, exitHit.location.y, 0).normalize();
+            exitHit.entry = false;
+            exitHit.material = material;
+            exitHit.u = 0;
+            exitHit.v = 0;
+            
+            result.add(entryHit);
+            result.add(exitHit);
+          }
+        }
+        
+        else {
+          
+          PVector normTop = new PVector(0,0,1);
+          PVector normBottom = new PVector(0,0,-1);
+          PVector centerPlaneTop = new PVector(0,0,height);
+          PVector centerPlaneBot = new PVector(0,0,0);
+          
+          float tPlaneTop = tHits(r.direction, centerPlaneTop, r.origin, normTop);
+          PVector tPointTop = PVector.add(PVector.mult(r.direction, tPlaneTop), r.origin);
+          
+          float tPlaneBot = tHits(r.direction, centerPlaneBot, r.origin, normBottom);
+          PVector tPointBot = PVector.add(PVector.mult(r.direction, tPlaneBot), r.origin);
+          
+          if(tEntry > 0 && tExit > 0) {
+            entryHit.t = tEntry;
+            entryHit.location = new PVector(r.origin.x + (tEntry*r.direction.x), 
+              r.origin.y + (tEntry*r.direction.y), r.origin.z);
+            entryHit.normal = new PVector(entryHit.location.x, entryHit.location.y, 0).normalize();
+            entryHit.entry = true;
+            entryHit.material = material;
+            entryHit.u = 0;
+            entryHit.v = 0;
+            
+            exitHit.t = tExit;
+            exitHit.location = new PVector(r.origin.x + (tExit*r.direction.x),
+              r.origin.y + (tExit*r.direction.y), r.origin.z);
+            exitHit.normal = new PVector(exitHit.location.x, exitHit.location.y, 0).normalize();
+            exitHit.entry = false;
+            exitHit.material = material;
+            exitHit.u = 0;
+            exitHit.v = 0;
+             
+            if(entryHit.location.z < 0 || entryHit.location.z > height) {
+              if (tPlaneBot > 0) {
+              entryHit.t  = tPlaneBot;
+              entryHit.location = tPointBot;
+              entryHit.normal = normBottom;
+              }
+            }
+            if(exitHit.location.z < 0 || exitHit.location.z > height) {
+              if (tPlaneBot > 0) {
+              exitHit.t  = tPlaneBot;
+              exitHit.location = tPointBot;
+              exitHit.normal = normBottom;
+              }
+            }
+          }
+        }
+        
         return result;
     }
 }
