@@ -18,8 +18,6 @@ class Union implements SceneObject
   Union(SceneObject[] children)
   {
     this.children = children;
-    // remove this line when you implement true unions
-    println("WARNING: Using 'fake' union");
   }
 
   ArrayList<RayHit> intersect(Ray r)
@@ -27,14 +25,52 @@ class Union implements SceneObject
      
      ArrayList<RayHit> hits = new ArrayList<RayHit>();
      
-     // Reminder: this is *not* a true union
-     // For a true union, you need to ensure that enter-
-     // and exit-hits alternate
      for (SceneObject sc : children)
      {
        hits.addAll(sc.intersect(r));
      }
-     hits.sort(new HitCompare());
+     
+     //removes hits from disorganized list and places them into array to reorganize them
+     RayHit[] organizedHits = new RayHit[hits.size()];
+     for (int i = 0; i < organizedHits.length; i++)
+     {
+       organizedHits[i] = hits.remove(0);
+     }
+     
+     //sorting algorithm incase num of RayHits is larger than 1
+     if(organizedHits.length > 1) {
+       for(int i = 1; i < organizedHits.length; i++)
+       {
+         RayHit key = organizedHits[i];
+         int j = i - 1;
+         
+         while(j >= 0 && organizedHits[j].location.mag() > key.location.mag())
+         {
+           organizedHits[j+1] = organizedHits[j];
+           j -= 1;
+         }
+         organizedHits[j+1] = key;
+       }
+     }
+     
+     //places back only necessary RayHits
+     int count = 0;
+     for(RayHit hit : organizedHits)
+     {
+       if(hit.entry == true)
+       {
+         if(count == 0)
+           hits.add(hit);
+         count++;  
+       }
+       else 
+       {
+         if(count == 1)
+           hits.add(hit);
+         count--; 
+       }
+     }
+       
      return hits;
   }
   
@@ -46,9 +82,6 @@ class Intersection implements SceneObject
   Intersection(SceneObject[] elements)
   {
     this.elements = elements;
-    
-    // remove this line when you implement intersection
-    throw new NotImplementedException("CSG Operation: Intersection not implemented yet");
   }
   
   
@@ -56,6 +89,52 @@ class Intersection implements SceneObject
   {
      ArrayList<RayHit> hits = new ArrayList<RayHit>();
      
+     for (SceneObject sc : elements)
+     {
+       hits.addAll(sc.intersect(r));
+     }
+     
+     //removes hits from disorganized list and places them into array to reorganize them
+     RayHit[] organizedHits = new RayHit[hits.size()];
+     for (int i = 0; i < organizedHits.length; i++)
+     {
+       organizedHits[i] = hits.remove(0);
+     }
+     
+     //sorting algorithm incase num of RayHits is larger than 1
+     if(organizedHits.length > 1) {
+       for(int i = 1; i < organizedHits.length; i++)
+       {
+         RayHit key = organizedHits[i];
+         int j = i - 1;
+         
+         while(j >= 0 && organizedHits[j].location.mag() > key.location.mag())
+         {
+           organizedHits[j+1] = organizedHits[j];
+           j -= 1;
+         }
+         organizedHits[j+1] = key;
+       }
+     }
+     
+     //places back only necessary RayHits
+     int count = 0;
+     for(RayHit hit : organizedHits)
+     {
+       if(hit.entry == true)
+       {
+         if(count == elements.length-1)
+           hits.add(hit);
+         count++;  
+       }
+       else 
+       {
+         if(count == elements.length)
+           hits.add(hit);
+         count--; 
+       }
+     }
+       
      return hits;
   }
   
