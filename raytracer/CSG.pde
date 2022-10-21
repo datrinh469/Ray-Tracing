@@ -149,14 +149,35 @@ class Difference implements SceneObject
     this.a = a;
     this.b = b;
     
-    // remove this line when you implement difference
-    throw new NotImplementedException("CSG Operation: Difference not implemented yet");
   }
   
   ArrayList<RayHit> intersect(Ray r)
   {
-     
-     return null;
+     ArrayList<RayHit> hits = new ArrayList<RayHit>();
+	 boolean bite1;
+	 boolean bite2;
+	 ArrayList<RayHit> hitOne = a.intersect(r);
+	 ArrayList<RayHit> hitTwo = b.intersect(r);
+	 if (hitOne.size() > 0)
+	 {
+		if (hitOne.get(0).entry == false)
+		{
+			bite1 = true;
+		}
+	 }
+	 if (hitTwo.size() > 0)
+	 {
+		if (hitTwo.get(0).entry == false)
+		{
+			bite2 = true;
+		}
+	 }
+	 hits.addAll(a.intersect(r));
+	 hits.addAll(b.intersect(r));
+	 hits.sort(new HitCompare());
+
+
+     return hits;
   }
   
 }
