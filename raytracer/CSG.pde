@@ -154,30 +154,137 @@ class Difference implements SceneObject
   ArrayList<RayHit> intersect(Ray r)
   {
      ArrayList<RayHit> hits = new ArrayList<RayHit>();
-	 boolean bite1;
-	 boolean bite2;
+	 
+	 boolean enterBiteOne = false;
+	 boolean enterBiteTwo = false;
+	 boolean exitBiteOne = false;
+	 boolean exitBiteTwo = false;
+	 boolean hit;
+	 RayHit initial;
+	 int biteOne = 0;
+	 int biteTwo = 0;
+
+	 
 	 ArrayList<RayHit> hitOne = a.intersect(r);
 	 ArrayList<RayHit> hitTwo = b.intersect(r);
 	 if (hitOne.size() > 0)
 	 {
 		if (hitOne.get(0).entry == false)
 		{
-			bite1 = true;
+			enterBiteOne = true;
 		}
+	 }
+	 else
+	 {
+		exitBiteOne = true;
 	 }
 	 if (hitTwo.size() > 0)
 	 {
 		if (hitTwo.get(0).entry == false)
 		{
-			bite2 = true;
-		}
-	 }
-	 hits.addAll(a.intersect(r));
-	 hits.addAll(b.intersect(r));
-	 hits.sort(new HitCompare());
-
-
-     return hits;
+        enterBiteTwo = true;
+      }
+   }
+   else
+   {
+      exitBiteTwo = true;
+   }
+   
+   while(!exitBiteOne || !exitBiteTwo)
+   {
+      if(exitBiteOne)
+      {
+        hit = false;
+        initial = hitTwo.get(biteTwo++);
+        if(biteTwo == hitTwo.size())
+        {
+          exitBiteTwo = true;
+        }
+      }
+    else if (exitBiteTwo)
+    {
+        hit = false;
+        initial = hitOne.get(biteOne++);
+        if(biteOne == hitOne.size())
+        {
+          exitBiteOne = true;
+        }
+    }
+    else
+    {  
+        if(hitOne.get(biteOne).t <= hitTwo.get(biteTwo).t)
+        {
+          hit = true;
+          initial = hitOne.get(biteOne++);
+          if(biteOne == hitOne.size())
+          {
+            exitBiteOne = true;
+          }
+        }
+        else
+        {
+          hit = false;
+          initial = hitTwo.get(biteTwo++);
+          if(biteTwo == hitTwo.size())
+          {
+            exitBiteTwo = true;
+          }
+        }
+    }
+    if(initial.entry == false)
+    {
+        if(enterBiteOne && enterBiteTwo)
+        {
+          if(hit)
+          {
+            enterBiteOne = false;
+          }
+          else
+          {
+            initial.normal = PVector.mult(initial.normal, -1);
+            initial.entry = true;
+            hits.add(initial);
+            enterBiteTwo = false;
+          }
+        }
+        else if(enterBiteOne & !enterBiteTwo)
+        {
+          hits.add(initial);
+          enterBiteOne = false;
+        }
+        else
+        {
+          enterBiteTwo = false;
+        }
+      }
+      else
+      {
+        if(!enterBiteOne && !enterBiteTwo)
+        {
+          if(hit)
+          {
+            hits.add(initial);
+            enterBiteOne = true;
+          }
+          else
+          {
+            enterBiteTwo = true;
+          }
+        }
+        else if(enterBiteTwo && !enterBiteOne)
+        {
+          enterBiteOne = true;
+        }
+        else
+        {
+          initial.normal = PVector.mult(initial.normal, -1);
+          initial.entry = false;
+          hits.add(initial);
+          enterBiteTwo = true;
+        }
+      }
+    }
+    return hits;
   }
-  
 }
+
