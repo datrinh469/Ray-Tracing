@@ -56,21 +56,23 @@ class PhongLightingModel extends LightingModel
       this.withshadow = withshadow;
       this.ambient = ambient;
       
-      // remove this line when you implement phong lighting
-      throw new NotImplementedException("Phong Lighting Model not implemented yet");
     }
     color getColor(RayHit hit, Scene sc, PVector viewer)
     {
-    //L, R, V, N for calculation components of Phong
+		MaterialProperties matProp = hit.material.properties;
+    	Material mat = hit.material;
+    	color Color = mat.getColor(hit.u, hit.v);
+	
+	//L, R, V, N for calculation components of Phong
     
     	PVector L;
     	PVector R;
     	PVector V = PVector.sub(viewer, hit.location).normalize();
     	PVector N = hit.normal;
    
-    	color shine;
-    	color spec;
-    	color end = multColor(scaleColor(hit.material.getColor(hit.u, hit.v), ambient), hit.material.properties.ka);
+    	color Shine;
+    	color Spec;
+    	color end = multColor(scaleColor(Color, ambient), matProp.ka);
 
       	for(Light l : lights)
       	{
@@ -90,13 +92,12 @@ class PhongLightingModel extends LightingModel
             continue;
           }
         }
-		//somewhere here the test cases are still way too dark, edit later
 
-        shine = multColor(l.shine(hit.material.getColor(hit.u, hit.v)), hit.material.properties.kd);
-        shine = multColor(shine, PVector.dot(L, N));
-        spec = multColor(l.spec(hit.material.getColor(hit.u, hit.v)), hit.material.properties.ks);
-        spec = multColor(spec, pow(PVector.dot(R, V), hit.material.properties.alpha));
-        end = addColors(spec, addColors(spec, shine));
+        Shine = multColor(l.shine(Color), matProp.kd);
+        Shine = multColor(Shine, PVector.dot(L, N));
+        Spec = multColor(l.spec(Color), matProp.ks);
+        Spec = multColor(Spec, pow(PVector.dot(R, V), matProp.alpha));
+        end = addColors(end, addColors(Spec, Shine));
 
       }
 
