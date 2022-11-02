@@ -31,47 +31,28 @@ class Union implements SceneObject
      }
      
      //removes hits from disorganized list and places them into array to reorganize them
-     RayHit[] organizedHits = new RayHit[hits.size()];
-     for (int i = 0; i < organizedHits.length; i++)
-     {
-       organizedHits[i] = hits.remove(0);
-     }
-     
-     //sorting algorithm incase num of RayHits is larger than 1
-     if(organizedHits.length > 1) {
-       for(int i = 1; i < organizedHits.length; i++)
-       {
-         RayHit key = organizedHits[i];
-         int j = i - 1;
-         
-         while(j >= 0 && organizedHits[j].location.mag() > key.location.mag())
-         {
-           organizedHits[j+1] = organizedHits[j];
-           j -= 1;
-         }
-         organizedHits[j+1] = key;
-       }
-     }
+     ArrayList<RayHit> organizedHits = new ArrayList<>();
+     hits.sort(new HitCompare());
      
      //places back only necessary RayHits
      int count = 0;
-     for(RayHit hit : organizedHits)
+     for(RayHit hit : hits)
      {
        if(hit.entry == true)
        {
          if(count == 0)
-           hits.add(hit);
+           organizedHits.add(hit);
          count++;  
        }
        else 
        {
          if(count == 1)
-           hits.add(hit);
+           organizedHits.add(hit);
          count--; 
        }
      }
        
-     return hits;
+     return organizedHits;
   }
   
 }
@@ -95,47 +76,34 @@ class Intersection implements SceneObject
      }
      
      //removes hits from disorganized list and places them into array to reorganize them
-     RayHit[] organizedHits = new RayHit[hits.size()];
-     for (int i = 0; i < organizedHits.length; i++)
-     {
-       organizedHits[i] = hits.remove(0);
-     }
-     
-     //sorting algorithm incase num of RayHits is larger than 1
-     if(organizedHits.length > 1) {
-       for(int i = 1; i < organizedHits.length; i++)
-       {
-         RayHit key = organizedHits[i];
-         int j = i - 1;
-         
-         while(j >= 0 && organizedHits[j].location.mag() > key.location.mag())
-         {
-           organizedHits[j+1] = organizedHits[j];
-           j -= 1;
-         }
-         organizedHits[j+1] = key;
-       }
-     }
+     ArrayList<RayHit> organizedHits = new ArrayList<>();
+     hits.sort(new HitCompare());
      
      //places back only necessary RayHits
      int count = 0;
-     for(RayHit hit : organizedHits)
+     for(RayHit hit : hits)
      {
        if(hit.entry == true)
        {
          if(count == elements.length-1)
-           hits.add(hit);
+         {
+           organizedHits.add(hit);
+           System.out.println("Add");
+         }
          count++;  
        }
        else 
        {
          if(count == elements.length)
-           hits.add(hit);
+         {
+           organizedHits.add(hit);
+           System.out.println("Sub");
+         }
          count--; 
        }
      }
-       
-     return hits;
+     
+     return organizedHits;
   }
   
 }
@@ -287,4 +255,3 @@ class Difference implements SceneObject
     return hits;
   }
 }
-

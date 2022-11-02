@@ -72,6 +72,7 @@ class MoveRotation implements SceneObject
     inverseRotationY(currentRay.direction, rotation);
     inverseRotationX(currentRay.direction, rotation);
     inverseRotationZ(currentRay.direction, rotation);
+    currentRay.direction.normalize();
     
     //Step 2
     ArrayList<RayHit> hits = new ArrayList<RayHit>();
@@ -88,6 +89,7 @@ class MoveRotation implements SceneObject
       rotationZ(hit.normal, rotation);
       rotationX(hit.normal, rotation);
       rotationY(hit.normal, rotation);
+      hit.normal.normalize();
     }
     
     //Step 4
