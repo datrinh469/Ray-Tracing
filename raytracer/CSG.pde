@@ -155,10 +155,10 @@ class Difference implements SceneObject
   {
      ArrayList<RayHit> hits = new ArrayList<RayHit>();
 	 
-	 boolean enterBiteOne = false;
-	 boolean enterBiteTwo = false;
-	 boolean exitBiteOne = false;
-	 boolean exitBiteTwo = false;
+	 boolean enterOne = false;
+	 boolean enterTwo = false;
+	 boolean exitOne = false;
+	 boolean exitTwo = false;
 	 boolean hit;
 	 RayHit initial;
 	 int biteOne = 0;
@@ -171,43 +171,43 @@ class Difference implements SceneObject
 	 {
 		if (hitOne.get(0).entry == false)
 		{
-			enterBiteOne = true;
+			enterOne = true;
 		}
 	 }
 	 else
 	 {
-		exitBiteOne = true;
+		exitOne = true;
 	 }
 	 if (hitTwo.size() > 0)
 	 {
 		if (hitTwo.get(0).entry == false)
 		{
-        enterBiteTwo = true;
+        enterTwo = true;
       }
    }
    else
    {
-      exitBiteTwo = true;
+      exitTwo = true;
    }
    
-   while(!exitBiteOne || !exitBiteTwo)
+   while(!exitOne || !exitTwo)
    {
-      if(exitBiteOne)
+      if(exitOne)
       {
         hit = false;
         initial = hitTwo.get(biteTwo++);
         if(biteTwo == hitTwo.size())
         {
-          exitBiteTwo = true;
+          exitTwo = true;
         }
       }
-    else if (exitBiteTwo)
+    else if (exitTwo)
     {
-        hit = false;
+        hit = true;
         initial = hitOne.get(biteOne++);
         if(biteOne == hitOne.size())
         {
-          exitBiteOne = true;
+          exitOne = true;
         }
     }
     else
@@ -218,7 +218,7 @@ class Difference implements SceneObject
           initial = hitOne.get(biteOne++);
           if(biteOne == hitOne.size())
           {
-            exitBiteOne = true;
+            exitOne = true;
           }
         }
         else
@@ -227,60 +227,60 @@ class Difference implements SceneObject
           initial = hitTwo.get(biteTwo++);
           if(biteTwo == hitTwo.size())
           {
-            exitBiteTwo = true;
+            exitTwo = true;
           }
         }
     }
     if(initial.entry == false)
     {
-        if(enterBiteOne && enterBiteTwo)
+        if(enterOne && enterTwo)
         {
           if(hit)
           {
-            enterBiteOne = false;
+            enterOne = false;
           }
           else
           {
             initial.normal = PVector.mult(initial.normal, -1);
             initial.entry = true;
             hits.add(initial);
-            enterBiteTwo = false;
+            enterTwo = false;
           }
         }
-        else if(enterBiteOne & !enterBiteTwo)
+        else if(enterOne & !enterTwo)
         {
           hits.add(initial);
-          enterBiteOne = false;
+          enterOne = false;
         }
         else
         {
-          enterBiteTwo = false;
+          enterTwo = false;
         }
       }
       else
       {
-        if(!enterBiteOne && !enterBiteTwo)
+        if(!enterOne && !enterTwo)
         {
           if(hit)
           {
             hits.add(initial);
-            enterBiteOne = true;
+            enterOne = true;
           }
           else
           {
-            enterBiteTwo = true;
+            enterTwo = true;
           }
         }
-        else if(enterBiteTwo && !enterBiteOne)
+        else if(enterTwo && !enterOne)
         {
-          enterBiteOne = true;
+          enterOne = true;
         }
         else
         {
           initial.normal = PVector.mult(initial.normal, -1);
           initial.entry = false;
           hits.add(initial);
-          enterBiteTwo = true;
+          enterTwo = true;
         }
       }
     }
