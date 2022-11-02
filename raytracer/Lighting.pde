@@ -61,7 +61,46 @@ class PhongLightingModel extends LightingModel
     }
     color getColor(RayHit hit, Scene sc, PVector viewer)
     {
-      return hit.material.getColor(hit.u, hit.v);
-    }
+    //L, R, V, N for calculation components of Phong
+    
+    	PVector L;
+    	PVector R;
+    	PVector V = PVector.sub(viewer, hit.location).normalize();
+    	PVector N = hit.normal;
+   
+    	color shine;
+    	color spec;
+    	color end = multColor(scaleColor(hit.material.getColor(hit.u, hit.v), ambient), hit.material.properties.ka);
+
+      	for(Light l : lights)
+      	{
+        	L = PVector.sub(l.position, hit.location).normalize();
+			//Calculating for R
+        	R = PVector.mult(N, (2 * PVector.dot(N, L)));
+        	R = PVector.sub(R, L).normalize();
+
+       	 	Ray sh = new Ray(PVector.add(hit.location, PVector.mult(L, EPS)), L);
+        	ArrayList<RayHit> reflected = sc.root.intersect(sh);
+
+        if (reflected.size() != 0)
+        {
+          RayHit reflectedHits = reflected.get(0);
+          if (reflectedHits.t <= PVector.sub(l.position, hit.location).mag())
+          {
+            continue;
+          }
+        }
+		//somewhere here the test cases are still way too dark, edit later
+
+        shine = multColor(l.shine(hit.material.getColor(hit.u, hit.v)), hit.material.properties.kd);
+        shine = multColor(shine, PVector.dot(L, N));
+        spec = multColor(l.spec(hit.material.getColor(hit.u, hit.v)), hit.material.properties.ks);
+        spec = multColor(spec, pow(PVector.dot(R, V), hit.material.properties.alpha));
+        end = addColors(spec, addColors(spec, shine));
+
+      }
+
+      return end;
+   }
   
 }
