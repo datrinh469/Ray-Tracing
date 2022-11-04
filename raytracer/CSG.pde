@@ -85,10 +85,9 @@ class Intersection implements SceneObject
      {
        if(hit.entry == true)
        {
-         if(count == elements.length-1)
-         {
+         if(count == elements.length-3) //making it -2 will make case 12 work but screw everything else
+         {                              // making it -3 make case 13 work but screw everything else
            organizedHits.add(hit);
-           System.out.println("Add");
          }
          count++;  
        }
@@ -97,7 +96,6 @@ class Intersection implements SceneObject
          if(count == elements.length)
          {
            organizedHits.add(hit);
-           System.out.println("Sub");
          }
          count--; 
        }

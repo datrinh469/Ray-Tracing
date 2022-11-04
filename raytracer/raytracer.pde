@@ -1,4 +1,4 @@
-String input =  "data/tests/milestone2/test12.json";
+String input =  "data/tests/milestone3/test10.json";
 String output = "data/tests/milestone1/test1.png";
 int repeat = 0;
 
@@ -151,18 +151,54 @@ class RayTracer
       
       ArrayList<RayHit> hits = scene.root.intersect(ray);
       if (hits.size() > 0) {
+        if (scene.reflections > 0 && hits.get(0).material.properties.reflectiveness > 0)
+        {
+          //initializes variables
+          color reflection = scene.lighting.getColor(hits.get(0), scene, ray.origin);
+          PVector R, TwoN;
+          PVector N = hits.get(0).normal; 
+          PVector V = PVector.sub(ray.origin, hits.get(0).location).normalize(); 
+          float NV;
+          Ray reflectRay = ray;
+          int reflectCount = 0;
+          
+          //repeat process until done
+          while(reflectCount <= scene.reflections && hits.size() > 0)
+          {
+            V = PVector.sub(reflectRay.origin, hits.get(0).location).normalize();
+            N = hits.get(0).normal;
+            
+            TwoN = PVector.mult(N, 2);  //2N
+            NV = PVector.dot(N, V);    //N*V
+            
+            //R = 2N(N*V) - V
+            R = PVector.sub(PVector.mult(TwoN, NV), V);
+            
+            //creates the new ray with origin at intersection and shoot it into scene
+            float previousReflectiveness = hits.get(0).material.properties.reflectiveness;    //grabs current object reflectiveness
+            reflectRay = new Ray(PVector.add(hits.get(0).location, PVector.mult(R, EPS)), R);
+            hits = scene.root.intersect(reflectRay);
+            
+            if(hits.size() > 0 && previousReflectiveness > 0)
+            {
+              reflection = lerpColor(reflection, scene.lighting.getColor(hits.get(0), scene, reflectRay.origin), previousReflectiveness);
+            }
+            else
+            {
+              break;
+            }
+            reflectCount++;
+          }
+          
+          return reflection;
+          
+        }
         //return multColor(color(255,0,0), -hits.get(0).normal.x);
         return scene.lighting.getColor(hits.get(0), scene, ray.origin);
       }
-      return scene.background;
       
-      /*if (scene.reflections > 0)
-      {
-          // remove this line when you implement reflection
-          throw new NotImplementedException("Reflection not implemented yet");
-      }*/
       
-      /// this will be the fallback case
-      //return this.scene.background;
+      
+      return this.scene.background;
     }
 }
