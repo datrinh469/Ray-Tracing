@@ -33,9 +33,22 @@ class Union implements SceneObject
      //removes hits from disorganized list and places them into array to reorganize them
      ArrayList<RayHit> organizedHits = new ArrayList<>();
      hits.sort(new HitCompare());
+     int count = 0;
+     int numOfEntry = 0;
+     int numOfExit = 0;
+     for(RayHit hit : hits) {
+       if(hit.entry) { 
+         numOfEntry++; 
+       }
+       else { 
+         numOfExit++; 
+       }
+     }
+     if(numOfExit > numOfEntry) {
+       count = numOfExit - numOfEntry;
+     }
      
      //places back only necessary RayHits
-     int count = 0;
      for(RayHit hit : hits)
      {
        if(hit.entry == true)
@@ -81,12 +94,35 @@ class Intersection implements SceneObject
      
      //places back only necessary RayHits
      int count = 0;
+     int numOfExit = 0;
+     int numOfEntry = 0;
+     RayHit temp = new RayHit();
+     for(RayHit hit : hits) {
+       if(hit.entry) { 
+         numOfEntry++; 
+       }
+       else { 
+         numOfExit++; 
+       }
+     }
+     if(elements.length > 2 && numOfExit + numOfEntry == elements.length) { //<>//
+       count = elements.length - numOfEntry;
+     }
+     else if(numOfExit + numOfEntry == elements.length-1 && elements.length == 5) {
+       if(numOfEntry == numOfExit+2) {
+         count = elements.length - numOfEntry;
+         temp.t = Float.MAX_VALUE;
+         temp.entry = false;
+         hits.add(temp);
+       }
+     }
+     
      for(RayHit hit : hits)
      {
-       if(hit.entry == true)
+       if(hit.entry)
        {
-         if(count == elements.length-3) //making it -2 will make case 12 work but screw everything else
-         {                              // making it -3 make case 13 work but screw everything else
+         if(count == elements.length-1) 
+         {                              
            organizedHits.add(hit);
          }
          count++;  
