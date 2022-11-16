@@ -108,6 +108,9 @@ class Intersection implements SceneObject
      if(elements.length > 2 && numOfExit + numOfEntry == elements.length) { //<>//
        count = elements.length - numOfEntry;
      }
+     else if(numOfExit == elements.length && numOfExit != numOfEntry) {
+       count = elements.length - numOfEntry;
+     }
      else if(numOfExit + numOfEntry == elements.length-1 && elements.length == 5) {
        if(numOfEntry == numOfExit+2) {
          count = elements.length - numOfEntry;
@@ -122,7 +125,7 @@ class Intersection implements SceneObject
        if(hit.entry)
        {
          if(count == elements.length-1) 
-         {                              
+         {
            organizedHits.add(hit);
          }
          count++;  

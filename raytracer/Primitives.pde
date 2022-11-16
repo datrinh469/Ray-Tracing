@@ -22,7 +22,7 @@ class Sphere implements SceneObject
         float deltaT = (float)Math.sqrt(sq(radius) - sq(differenceOfClosestVectorPointToCenter));
         float entrance = distanceRayToOrigin - deltaT;
           
-        if(differenceOfClosestVectorPointToCenter < radius && entrance >= 0) {
+        if(differenceOfClosestVectorPointToCenter < radius) {
           RayHit entry = new RayHit();
           entry.t = entrance;
           entry.location = PVector.add(r.origin, PVector.mult(r.direction, entry.t));
@@ -41,8 +41,14 @@ class Sphere implements SceneObject
           exit.u = 0;
           exit.v = 0;
           
-          result.add(entry);
-          result.add(exit);
+          if(entry.t > 0)
+          {
+            result.add(entry);
+          }
+          if(exit.t > 0)
+          {
+            result.add(exit);
+          }
         }
         return result;
     }

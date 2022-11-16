@@ -1,4 +1,4 @@
-String input =  "data/tests/milestone2/test6.json";
+String input =  "data/tests/milestone3/test23.json";
 String output = "data/tests/milestone1/test1.png";
 int repeat = 0;
 
@@ -151,9 +151,55 @@ class RayTracer
       
       ArrayList<RayHit> hits = scene.root.intersect(ray);
       if (hits.size() > 0) {
+        if(hits.get(0).material.properties.transparency > 0) 
+        {
+          color refraction = scene.lighting.getColor(hits.get(0), scene, ray.origin);
+          Ray i = ray;
+          while(hits.size() > 0 && hits.get(0).material.properties.transparency > 0)
+          {
+            //Solve for the new ray t.
+            PVector normal = hits.get(0).normal;
+            if(!hits.get(0).entry) //Exit
+            {
+              //System.out.println("Exit Hit");
+              normal = PVector.mult(normal, -1);
+            }
+            float n1 = 1.0;
+            float n2 = hits.get(0).material.properties.refractionIndex;
+            if (n1 == n2) return color(0); //DEBUG
+            float nDivided = n1 / n2;
+            float cosineTheta1 = PVector.dot(PVector.mult(i.direction, -1), normal); //-i*n
+            float sineSquaredTheta2 = (nDivided*nDivided) * (1-(cosineTheta1*cosineTheta1)); // (n1/n2)^2 * (1-(cosineTheta1^2))
+            float sqRootPortion = 1 - sineSquaredTheta2;
+            if(sqRootPortion < 0)
+            {
+              break;
+            }
+            float parenthesisPortion = (nDivided * cosineTheta1) - (float)Math.sqrt(sqRootPortion); // (n1/n2)*cosineTheta1 - sqrt(sqRootPortion)
+            PVector refractedDirection = PVector.add(PVector.mult(i.direction, nDivided), PVector.mult(normal, parenthesisPortion));
+              // (n1/n2) * i.direction + (n*parentheisPortion)
+            refractedDirection = refractedDirection.normalize();
+              
+            
+            //Replace previous ray and variables with new ray in case while loop continues
+            float previousTransparency = hits.get(0).material.properties.transparency;
+            i = new Ray(PVector.add(hits.get(0).location, PVector.mult(refractedDirection, EPS)), refractedDirection);
+            hits = scene.root.intersect(i);
+            if(hits.size() > 0)
+            {
+              refraction = lerpColor(refraction, scene.lighting.getColor(hits.get(0), scene, i.origin), previousTransparency);
+            }
+            else 
+            {
+              refraction = lerpColor(refraction, this.scene.background, previousTransparency);
+              break;
+            }
+          }
+          return refraction;
+        }
         if (scene.reflections > 0 && hits.get(0).material.properties.reflectiveness > 0)
         {
-          //initializes variables
+          //initializes variables //<>//
           color reflection = scene.lighting.getColor(hits.get(0), scene, ray.origin);
           PVector R, TwoN;
           PVector N = hits.get(0).normal; 
@@ -189,9 +235,7 @@ class RayTracer
             }
             reflectCount++;
           }
-          
           return reflection;
-          
         }
         //return multColor(color(255,0,0), -hits.get(0).normal.x);
         return scene.lighting.getColor(hits.get(0), scene, ray.origin);

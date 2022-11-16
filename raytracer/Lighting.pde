@@ -84,7 +84,7 @@ class PhongLightingModel extends LightingModel
        	 	Ray sh = new Ray(PVector.add(hit.location, PVector.mult(L, EPS)), L);
         	ArrayList<RayHit> reflected = sc.root.intersect(sh);
 
-        if (reflected.size() != 0)
+        if (reflected.size() != 0 && withshadow)
         {
           RayHit reflectedHits = reflected.get(0);
           if (reflectedHits.t <= PVector.sub(l.position, hit.location).mag())
