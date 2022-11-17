@@ -1,4 +1,4 @@
-String input =  "data/tests/milestone3/test23.json";
+String input =  "data/tests/milestone4/test3.json";
 String output = "data/tests/milestone1/test1.png";
 int repeat = 0;
 
@@ -166,7 +166,6 @@ class RayTracer
             }
             float n1 = 1.0;
             float n2 = hits.get(0).material.properties.refractionIndex;
-            if (n1 == n2) return color(0); //DEBUG
             float nDivided = n1 / n2;
             float cosineTheta1 = PVector.dot(PVector.mult(i.direction, -1), normal); //-i*n
             float sineSquaredTheta2 = (nDivided*nDivided) * (1-(cosineTheta1*cosineTheta1)); // (n1/n2)^2 * (1-(cosineTheta1^2))
@@ -231,6 +230,7 @@ class RayTracer
             }
             else
             {
+              reflection = lerpColor(reflection, this.scene.background, previousReflectiveness);
               break;
             }
             reflectCount++;

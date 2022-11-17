@@ -29,8 +29,8 @@ class Sphere implements SceneObject
           entry.normal = PVector.sub(entry.location, center).normalize();
           entry.material = material;
           entry.entry = true;
-          entry.u = 0;
-          entry.v = 0;
+          entry.u = 0.5 + (float)(Math.atan2(entry.normal.y, entry.normal.x)/(2*Math.PI));
+          entry.v = 0.5 - (float)(Math.asin(entry.normal.z)/Math.PI);
           
           RayHit exit = new RayHit();
           exit.t = distanceRayToOrigin + deltaT;
@@ -38,8 +38,8 @@ class Sphere implements SceneObject
           exit.normal = PVector.sub(exit.location, center).normalize();
           exit.material = material;
           exit.entry = false;
-          exit.u = 0;
-          exit.v = 0;
+          exit.u = 0.5 + (float)(Math.atan2(entry.normal.y, entry.normal.x)/(2*Math.PI));
+          exit.v = 0.5 - (float)(Math.asin(entry.normal.z)/Math.PI);
           
           if(entry.t > 0)
           {
@@ -60,8 +60,11 @@ class Plane implements SceneObject
     PVector normal;
     float scale;
     Material material;
-    PVector left;
+    PVector right;
     PVector up;
+    PVector d;
+    float x;
+    float y;
     
     Plane(PVector center, PVector normal, Material material, float scale)
     {
@@ -94,6 +97,22 @@ class Plane implements SceneObject
             pHit.entry = false;
           }
           pHit.material = this.material;
+          if(!pHit.normal.equals(new PVector(0,0,1)))
+          {
+            right = PVector.cross(new PVector(0,0,1), pHit.normal, right);
+          }
+          else
+          {
+            right = PVector.cross(new PVector(0,1,0), pHit.normal, right);
+          }
+          right.normalize();
+          up = PVector.cross(pHit.normal, right, up);
+          up.normalize();
+          d = PVector.sub(pHit.location, center);
+          x = PVector.dot(d, right)/scale;
+          y = PVector.dot(d, up)/scale;
+          pHit.u = x - floor(x);
+          pHit.v = -y - floor(-y);
           result.add(pHit);
         }
         return result;
