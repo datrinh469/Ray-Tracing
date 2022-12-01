@@ -163,6 +163,15 @@ class Triangle implements SceneObject
        this.material = material;
        
     }
+    PVector triangleTextureCoord( float th, float ph)
+    {
+      PVector result;
+      float psi = 1 - (th + ph);
+      result = PVector.mult(tex2, th);
+      result = PVector.add(result, PVector.mult(tex1, psi));
+      result = PVector.add(result, PVector.mult(tex3, ph));
+      return result;
+    }
  
     ArrayList<RayHit> intersect(Ray r)
     {
@@ -172,22 +181,32 @@ class Triangle implements SceneObject
         ArrayList<Float> uv = ComputeUV(v1, v2, v3, point);
         if (PointInTriangle(v1, v2, v3, point) & tTriangle > 0)
         {
+
           RayHit TRI = new RayHit();
           TRI.t = tTriangle;
-          TRI.location = point;
-          TRI.normal = this.normal;
-          if (PVector.dot(r.direction, this.normal) < 0)
+          TRI.location = point;          
+          if (PVector.dot(r.direction, this.normal) <= 0)
           {
+            TRI.normal = this.normal;
             TRI.entry = true;
           }
           else
           {
+            TRI.normal = PVector.mult(this.normal, -1);
+            
             TRI.entry = false;
           }
           TRI.u = uv.get(0);
           TRI.v = uv.get(1);
           TRI.material = this.material;
-          result.add(TRI);
+          if (TRI.u >= 0 && TRI.v >= 0 && (TRI.u + TRI.v)<= 1)
+          {
+            PVector img = triangleTextureCoord(TRI.u, TRI.v);
+            TRI.u =  img.x;
+            TRI.v = img.y;
+            result.add(TRI);
+          }
+          
         }
           
         return result;
